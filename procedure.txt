@@ -1,0 +1,34 @@
+create TABLE blog.users (
+  id BIGINT NULL AUTO_INCREMENT,
+  username VARCHAR(255) NULL,
+  email VARCHAR(255) NULL,
+  password VARCHAR(255) NULL,
+  PRIMARY KEY (id));
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `createUser`(
+    IN p_username VARCHAR(255),
+    IN p_email VARCHAR(255),
+    IN p_password VARCHAR(255)
+)
+BEGIN
+    if ( select exists (select 1 from users where email = p_email) ) THEN
+        select 'User Exists !!';
+    ELSE
+        insert into users
+        (
+            username,
+            email,
+            password
+        )
+        values
+        (
+            p_username,
+            p_email,
+            p_password
+        );
+    END IF;
+END$$
+DELIMITER;
+
+to show "show create procesure createUser"

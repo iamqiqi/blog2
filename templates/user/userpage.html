@@ -1,0 +1,26 @@
+{% extends "layouts/application.html" %}
+
+{% block head %}
+  <link href="../public/css/signup.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+  <div class="jumbotron">
+    <h1>Blog Pepper</h1>
+    <ul class="errorList">
+      {% for error in errors %}
+        <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+    <form class="form-signin" method="post" action="/signIn">
+      <label for="inputEmail" class="sr-only">Email address</label>
+      <input type="email" name="inputEmail" id="inputEmail" class="form-control" placeholder="Email address" value="{{email}}" required autofocus>
+      <label for="inputPassword" class="sr-only">Password</label>
+      <input type="password" name="inputPassword" id="inputPassword" class="form-control" placeholder="Password" value="{{password}}" required>
+      <button class="btn btn-lg btn-primary btn-block" type="submit" >Sign in</button>
+      <div>
+        Don't have an account? <a href="/showSignUp">sign up</a> here
+      </div>
+    </form>
+  </div>
+{% endblock %}

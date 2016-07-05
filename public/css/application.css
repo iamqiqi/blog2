@@ -1,0 +1,7 @@
+a:visited, a:hover {
+    text-decoration: none;
+}
+
+.homepage-link, .homepage-link:hover {
+    color: #0A521B;
+}
