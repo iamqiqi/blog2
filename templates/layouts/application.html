@@ -20,12 +20,15 @@
         </h3>
         <ul class="nav nav-pills pull-right">
           {% if not 'logged_in_userid' in session %}
-            <li role="presentation">
-              <a href="/showSignIn">Sign In</a>
+            <li>
+              <a href="/signIn">Sign In</a>
             </li>
           {% else %}
-            <li role="presentation">
-              <a href="/showUserPage">{{session['logged_in_username']}}</a>
+            <li>
+              <a href="/userPage/{{session['logged_in_userid']}}">{{session['logged_in_username']}}</a>
+            </li>
+            <li>
+              <a href="/newArticle" class="btn btn-primary btn-xs">new blog</a>
             </li>
             <li>
               <a role="presentation" href="/signOut">Sign Out</a>

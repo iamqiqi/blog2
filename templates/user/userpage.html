@@ -6,7 +6,14 @@
 
 {% block body %}
   <div class="jumbotron">
-    <h1 class="username">{{ session['logged_in_username'] }}</h1>
-
+    <h1 class="username">{{ username }}</h1>
+  </div>
+  <div class="article-list">
+      {% for article in articles %}
+        <div>
+          <div>{{ article.title }}</div>
+          <div>{{ article.content }}</div>
+        </div>
+      {% endfor %}
   </div>
 {% endblock %}
