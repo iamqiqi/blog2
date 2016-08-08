@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% if title %}
+    <title>{{ title }} - Blog Pepper</title>
+  {% else %}
+    <title>Blog Pepper</title>
+  {% endif %}
+  <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+  <script src="../static/js/client.js"></script>
+  <link href="//getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="//getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
+  <link href="../static/css/app.css" rel="stylesheet">
+  {% block head %}
+  {% endblock %}
+</head>
+
+<body>
+  <div class="container">
+    <div class="message">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-success">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+    <div class="header">
+      <nav class="clearfix">
+        <h3 class="text-muted nav pull-left">
+          <a class="homepage-link" href="/">Blog Pepper</a>
+        </h3>
+        <ul class="nav nav-pills pull-right">
+          {% if not 'logged_in_userid' in session %}
+            <li>
+              <button type="button" class="btn btn-default" data-toggle="popover">
+                Sign in
+              </button>
+            </li>
+          {% else %}
+            <li>
+              <a href="/users/{{session['logged_in_username']}}">{{session['logged_in_username']}}</a>
+            </li>
+            <li>
+              <button class="new-post-button btn button-default">New Post</button>
+            </li>
+            <li>
+              <a role="presentation" href="/logout">Sign Out</a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+
+    <div class="new-post jumbotron">
+      <button class="hide-post">Hide</button>
+      <div>
+        <label for="post" class="sr-only">New post</label>
+        <div>{{ post_form.post(class="form-control post-content", placeholder="Write something here to share", value=content) }}</div>
+        <div>max: 140</div>
+        <div class="count">count:0</div>
+        <button class="btn btn-sm btn-primary post-button disabled" disabled>Post</button>
+      </div>
+    </div>
+
+    <div id="popover-content" class="jumbotron hide">
+      <h2>Sign In</h2>
+      <form class="form-signin" method="post" action="/login">
+        <label for="email" class="sr-only">Email address</label>
+        <div>{{ login_form.email(size=80, class="form-control", placeholder="Email address", value=email) }}</div>
+        {% if 'email' in login_form.errors.keys() %}
+          {% for error in login_form.errors.email %}
+            <div class="text-left glyphicon glyphicon-exclamation-sign">{{ error }}</div>
+          {% endfor %}
+        {% endif %}
+        <label for="password" class="sr-only">Password</label>
+        <div>{{ login_form.password(size=80, class="form-control", placeholder="Password") }}</div>
+        {% if 'password' in login_form.errors.keys() %}
+          {% for error in login_form.errors.password %}
+            <div class="text-left glyphicon glyphicon-exclamation-sign">{{ error }}</div>
+          {% endfor %}
+        {% endif %}
+        <button class="btn btn-lg btn-primary btn-block" type="submit" >Sign in</button>
+        <div>
+          Don't have an account? <a href="/signup">sign up</a>
+        </div>
+        {{ login_form.csrf_token }}
+      </form>
+    </div>
+    {% block body %}
+    {% endblock %}
+
+    <footer class="footer">
+      <p>&copy; Company 2016</p>
+    </footer>
+  </div>
+</body>
+
+</html>

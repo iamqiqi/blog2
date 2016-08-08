@@ -1,0 +1,33 @@
+{% extends "layouts/application.html" %}
+
+{% block head %}
+  <link href="../static/css/app.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+  <div class="jumbotron">
+    <h1>Blog Pepper</h1>
+    <h2>Sign In</h2>
+    <form class="form-signin" method="post" action="/login">
+      <label for="email" class="sr-only">Email address</label>
+      <div>{{ login_form.email(size=80, class="form-control", placeholder="Email address", value=email) }}</div>
+      {% if 'email' in login_form.errors.keys() %}
+        {% for error in login_form.errors.email %}
+          <div class="text-left glyphicon glyphicon-exclamation-sign">{{ error }}</div>
+        {% endfor %}
+      {% endif %}
+      <label for="password" class="sr-only">Password</label>
+      <div>{{ login_form.password(size=80, class="form-control", placeholder="Password") }}</div>
+      {% if 'password' in login_form.errors.keys() %}
+        {% for error in login_form.errors.password %}
+          <div class="text-left glyphicon glyphicon-exclamation-sign">{{ error }}</div>
+        {% endfor %}
+      {% endif %}
+      <button class="btn btn-lg btn-primary btn-block" type="submit" >Sign in</button>
+      <div>
+        Don't have an account? <a href="/signup">sign up</a>
+      </div>
+      {{ login_form.csrf_token }}
+    </form>
+  </div>
+{% endblock %}

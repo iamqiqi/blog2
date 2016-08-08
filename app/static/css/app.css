@@ -33,6 +33,6 @@ body {
   margin-bottom: 10px;
 }
 
-#btnSignUp {
-  margin-bottom: 20px;
+.new-post {
+  display: none;
 }

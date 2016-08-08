@@ -1,3 +1,3 @@
 to start, run:
 
-./app.py
+./run.py

@@ -1,3 +1,0 @@
-/* global $ */
-$(document).ready(function(){
-});
