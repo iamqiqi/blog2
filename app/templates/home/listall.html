@@ -1,0 +1,15 @@
+{% extends "layouts/application.html" %}
+{% block body %}
+<h1>Newsfeed</h1>
+<div class="list-all">
+  {% for post in posts %}
+    <div>
+      <h3>{{ post.body }}</h3>
+      <a href="/users/{{ post.author.nickname }}">
+        {{ post.author.nickname }}
+      </a>
+      <span>{{ post.timestamp }}</span>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

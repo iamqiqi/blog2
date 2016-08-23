@@ -1,0 +1,53 @@
+{% extends "layouts/application.html" %}
+
+{% block head %}
+  <link href="/static/css/app.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+{% if user.nickname == session['logged_in_username'] %}
+  <div>
+    Username: <span class="updated-username">{{ user.nickname }}</span>
+    <button class="username-edit-btn">Change</button>
+    <div class="account-edit-form username-edit-form form-signin hide">
+      <div class="error username-error"></div>
+      <label for="username" class="sr-only">Username</label>
+      <div class="account-input">{{ edit_form.username(size=64, class="form-control username-edit-input", placeholder="New Username") }}</div>
+      <button class="btn btn-lg btn-primary btn-block username-update-btn">Update</button>
+      <button class="btn btn-lg btn-primary btn-block cancel-account-edit-btn">Cancel</button>
+    </div>
+  </div>
+
+  <div>
+    email: <span class="updated-email">{{ user.email }}</span>
+    <button class="email-edit-btn">Change</button>
+    <div class="account-edit-form email-edit-form form-signin hide">
+      <div class="error email-error"></div>
+      <label for="email" class="sr-only">Email</label>
+      <div class="account-input">{{ edit_form.email(size=120, class="form-control email-edit-input1", placeholder="New Email address") }}</div>
+      <label for="email2" class="sr-only">Email2</label>
+      <div class="account-input">{{ edit_form.email2(size=120, class="form-control email-edit-input2", placeholder="Confirm Email address") }}</div>
+      <button class="btn btn-lg btn-primary btn-block email-update-btn">Update</button>
+      <button class="btn btn-lg btn-primary btn-block cancel-account-edit-btn">Cancel</button>
+    </div>
+  </div>
+
+  <div>
+    Password
+    <button class="password-edit-btn">Change</button>
+    <div class="account-edit-form password-edit-form form-signin hide">
+      <div class="error password-error"></div>
+      <label for="password" class="sr-only">Password</label>
+      <div class="account-input">{{ edit_form.password(size=80, class="form-control password-edit-input1", placeholder="Current Password") }}</div>
+      <label for="password2" class="sr-only">Password2</label>
+      <div class="account-input">{{ edit_form.password2(size=80, class="form-control password-edit-input2", placeholder="New Password") }}</div>
+      <label for="password3" class="sr-only">Password3</label>
+      <div class="account-input">{{ edit_form.password3(size=80, class="form-control password-edit-input3", placeholder="Confirm Password") }}</div>
+      <button class="btn btn-lg btn-primary btn-block password-update-btn" type="submit" >Update</button>
+      <button class="btn btn-lg btn-primary btn-block cancel-account-edit-btn">Cancel</button>
+    </div>
+  </div>
+{% else %}
+  <img src="/static/img/bossface.jpg" alt="permission denied" class="img-responsive">
+{% endif %}
+{% endblock %}

@@ -9,10 +9,10 @@
   {% endif %}
   <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-  <script src="../static/js/client.js"></script>
+  <script src="/static/js/client.js"></script>
   <link href="//getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="//getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
-  <link href="../static/css/app.css" rel="stylesheet">
+  <link href="/static/css/app.css" rel="stylesheet">
   {% block head %}
   {% endblock %}
 </head>
@@ -25,6 +25,11 @@
           {% for message in messages %}
             <div class="alert alert-success">{{ message }}</div>
           {% endfor %}
+          <script>
+            setTimeout(function(){
+              $('.alert').slideUp(200);
+            }, 1000);
+          </script>
         {% endif %}
       {% endwith %}
     </div>
@@ -34,6 +39,9 @@
           <a class="homepage-link" href="/">Blog Pepper</a>
         </h3>
         <ul class="nav nav-pills pull-right">
+          <li>
+            <a href="/listall">discover</a>
+          </li>
           {% if not 'logged_in_userid' in session %}
             <li>
               <button type="button" class="btn btn-default" data-toggle="popover">
@@ -42,10 +50,10 @@
             </li>
           {% else %}
             <li>
-              <a href="/users/{{session['logged_in_username']}}">{{session['logged_in_username']}}</a>
+              <a  class="header-username" href="/users/{{session['logged_in_username']}}">{{ session['logged_in_username']|upper }}</a>
             </li>
             <li>
-              <button class="new-post-button btn button-default">New Post</button>
+              <button class="show-post-button btn button-default">New Post</button>
             </li>
             <li>
               <a role="presentation" href="/logout">Sign Out</a>
@@ -59,10 +67,10 @@
       <button class="hide-post">Hide</button>
       <div>
         <label for="post" class="sr-only">New post</label>
-        <div>{{ post_form.post(class="form-control post-content", placeholder="Write something here to share", value=content) }}</div>
+        <div>{{ post_form.post(class="form-control input-content post-content", placeholder="Write something here to share", value=content) }}</div>
         <div>max: 140</div>
         <div class="count">count:0</div>
-        <button class="btn btn-sm btn-primary post-button disabled" disabled>Post</button>
+        <button class="btn btn-sm btn-primary post-button new-post-button disabled" disabled>Post</button>
       </div>
     </div>
 

@@ -1,24 +1,53 @@
 {% extends "layouts/application.html" %}
 {% block body %}
 
-<h1>{{ username }}</h1>
+<h1>{{ user.nickname }}</h1>
+{% if user.nickname == session['logged_in_username'] %}
+<div>
+  <a href="/users/{{ user.nickname }}/account">
+    <button>account manage</button>
+  </a>
+<div>
+{% endif %}
+<img src="{{ user.avatar(128) }}">
+<div>last seen: {{ user.last_seen }}</div>
 
 <div class="bio-container">
-  {% if about_me != None %}
-    <div>{{ about_me }}</div>
+  {% if (user.about_me != None) and (user.about_me != '') %}
+    <div class="about-me">{{ user.about_me }}</div>
+    {% if user.nickname == session['logged_in_username'] %}
+      <button class="show-modal-button">Edit</button>
+    {% endif %}
   {% else %}
-    else: {{ about_me }}
-    <button class="show-modal-button">Edit</button>
+    <div class="about-me"></div>
+    {% if user.nickname == session['logged_in_username'] %}
+      <button class="show-modal-button">Add</button>
+    {% endif %}
   {% endif %}
 </div>
 
-<ul class="post-list">
-  {% for post in posts %}
-    <li>
-      {{ post.body }}
-    </li>
-  {% endfor %}
-</ul>
+<div class="post-list">
+  {% if user.nickname == session['logged_in_username'] %}
+    {% for post in posts %}
+      <div>
+        <span>
+          {{ post.body }}
+        </span>
+        <button class="delete-post-button" id="{{ post.id }}">
+          X
+        </button>
+      </div>
+    {% endfor %}
+  {% else %}
+    {% for post in posts %}
+      <div>
+        <span>
+          {{ post.body }}
+        </span>
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>
 
 <div class="mybio modal fade" role="dialog">
   <div class="modal-dialog">
@@ -28,26 +57,10 @@
         <h4 class="modal-title">Bio</h4>
       </div>
       <div class="modal-body">
-<!--				<%= form_for current_user, html: { id: 'edit-bio-form' } do |f| %>-->
-<!--					<% if @user.errors.any? %>-->
-<!--						<div id="error-explanation">-->
-<!--							<h2>-->
-<!--								<%= pluralize(@user.errors.count, "error") %> prohibited from being saved:-->
-<!--							</h2>-->
-<!--							<ul>-->
-<!--								<% @user.errors.full_messages.each do |msg| %>-->
-<!--									<li><%= msg %></li>-->
-<!--								<% end %>-->
-<!--							</ul>-->
-<!--						</div>-->
-<!--					<% end %>-->
-<!--					<p>-->
-<!--						<%= f.text_area :bio, class: 'bio-textbox' %>-->
-<!--					</p>-->
-<!--					<p>-->
-<!--						<%= f.submit "Update Bio", class: 'btn btn-primary center-block' %>-->
-<!--					</p>-->
-<!--				<% end %>-->
+        <div class="center-block">
+          <div>{{ bio_form.bio(class="input-content bio-content form-control", placeholder="Introduce yourself here") }}</div>
+          <button class="btn btn-sm btn-primary post-button edit-bio-button disabled center-block" disabled>Save</button>
+        </div>
       </div>
     </div>
   </div>

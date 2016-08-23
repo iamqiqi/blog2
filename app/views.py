@@ -1,10 +1,11 @@
 from flask import render_template, flash, redirect, request, session, flash, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db
-from .forms import LoginForm, SignupForm, PostForm
+from .forms import LoginForm, SignupForm, PostForm, BioForm, EditForm
 from .models import User, Post
 from wtforms.validators import ValidationError
 from datetime import datetime
+from hashlib import md5
 
 @app.route('/')
 @app.route('/index')
@@ -13,13 +14,66 @@ def index():
     post_form = PostForm()
     return render_template('home/index.html', post_form=post_form, login_form=login_form)
 
+@app.route('/listall')
+def listall():
+    login_form = LoginForm()
+    post_form = PostForm()
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    return render_template('home/listall.html', posts=posts, post_form=post_form, login_form=login_form)
+
 @app.route('/users/<username>')
 def userPage(username):
     post_form = PostForm()
     login_form = LoginForm()
+    bio_form = BioForm()
     user = User.query.filter_by(nickname=username).first()
-    posts = user.post.all()
-    return render_template('user/userposts.html', post_form=post_form, login_form=login_form, username=user.nickname, about_me=user.about_me, posts=posts)
+    posts = user.post.order_by(Post.timestamp.desc()).all()
+    bio_form.bio.data = user.about_me
+    return render_template('user/userposts.html', post_form=post_form, login_form=login_form, bio_form=bio_form, user=user, posts=posts)
+
+@app.route('/users/<username>/account')
+def account(username):
+    user = User.query.filter_by(nickname=username).first()
+    post_form = PostForm()
+    login_form = LoginForm()
+    bio_form = BioForm()
+    edit_form = EditForm()
+    bio_form.bio.data = user.about_me
+    return render_template('user/account.html', edit_form=edit_form, post_form=post_form, login_form=login_form, bio_form=bio_form, user=user)
+
+@app.route('/users/<username>/account/<option>', methods=['POST'])
+def accountedit(username, option):
+    user = User.query.filter_by(nickname=username).first()
+    if option == 'username':
+        username = request.form['new_username']
+        check = User.query.filter_by(nickname=username).first()
+        if check:
+            return "username is taken", 409
+        else:
+            user.nickname = username
+            db.session.commit()
+            session['logged_in_username'] = username
+            return 'changed username'
+
+    elif option == 'email':
+        email = request.form['new_email']
+        check = User.query.filter_by(email=email).first()
+        if check:
+            return "email is registered", 409
+        else:
+            user.email = email
+            db.session.commit()
+            return 'changed email'
+
+    elif option == 'password':
+        password = request.form['current_password']
+        if not check_password_hash(user.password, password):
+            return "current password is incorrect", 403
+        else:
+            new_password = request.form['new_password']
+            user.password = generate_password_hash(new_password, method="pbkdf2:sha256")
+            db.session.commit()
+            return 'changed password'
 
 @app.route('/post', methods=['POST'])
 def post():
@@ -29,10 +83,30 @@ def post():
     post = Post(content, timestamp, user_id)
     db.session.add(post)
     db.session.commit()
-    return redirect('/')
+    return str(post.id)
+
+@app.route('/bio', methods=['POST'])
+def bio():
+    content = request.form['content']
+    user_id = session['logged_in_userid']
+    user = User.query.filter_by(id=user_id).first()
+    user.about_me = content
+    db.session.commit()
+    return 'done'
+
+@app.route('/deletepost', methods=['POST'])
+def deletepost():
+    post_id = request.form['id']
+    post = Post.query.filter_by(id=int(post_id)).delete()
+    db.session.commit()
+    return 'done'
 
 @app.route('/logout')
 def logout():
+    user_id = session['logged_in_userid']
+    user = User.query.filter_by(id=user_id).first()
+    user.last_seen = datetime.utcnow()
+    db.session.commit()
     session.clear()
     flash('You were successfully logged out')
     return redirect('/')
@@ -44,7 +118,7 @@ def login():
     if request.method == 'GET':
         return render_template('session/signin.html', title='Sign in', post_form=post_form, login_form=login_form)
     else:
-        email = request.form['email']
+        email = request.form['email'].lower()
         if login_form.validate_on_submit() == False:
             return render_template('session/signin.html', title='Sign in', post_form=post_form, login_form=login_form, email=email)
         else:
@@ -67,8 +141,8 @@ def signup():
     if request.method == 'GET':
         return render_template('session/signup.html', title='Sign up', post_form=post_form, login_form=login_form, signup_form=signup_form)
     else:
-        username = request.form['username']
-        email = request.form['email']
+        username = request.form['username'].lower()
+        email = request.form['email'].lower()
         if signup_form.validate_on_submit() == False:
             return render_template('session/signup.html', title='Sign up', post_form=post_form, login_form=login_form, signup_form=signup_form, username=username, email=email)
         else:
