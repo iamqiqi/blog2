@@ -10,7 +10,10 @@
 <div>
 {% endif %}
 <img src="{{ user.avatar(128) }}">
-<div>last seen: {{ user.last_seen }}</div>
+
+{% if user.last_seen != None %}
+  <div>last seen: {{ user.last_seen }}</div>
+{% endif %}
 
 <div class="bio-container">
   {% if (user.about_me != None) and (user.about_me != '') %}

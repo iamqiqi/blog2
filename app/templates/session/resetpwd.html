@@ -1,0 +1,18 @@
+{% extends "layouts/application.html" %}
+{% block body %}
+  <div class="jumbotron">
+    <h1>Blog Pepper</h1>
+    <h2>Reset password</h2>
+    <form class="form-signin" method="post" action="/resetpwd">
+      <label for="email" class="sr-only">Email address</label>
+      <div>{{ resetpwd_form.email(size=80, class="form-control", placeholder="Email address", value=email) }}</div>
+      {% if 'email' in resetpwd_form.errors.keys() %}
+        {% for error in resetpwd_form.errors.email %}
+          <div class="text-left glyphicon glyphicon-exclamation-sign">{{ error }}</div>
+        {% endfor %}
+      {% endif %}
+      <button class="btn btn-lg btn-primary btn-block" type="submit" >send confirmation</button>
+      {{ login_form.csrf_token }}
+    </form>
+  </div>
+{% endblock %}

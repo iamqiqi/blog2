@@ -78,3 +78,10 @@ class EditForm(Form):
         Length(min=6, message='Password minimum is 6 characters'),
         EqualTo('password2', message='Passwords must match')
     ])
+
+class ResetPwdForm(Form):
+    email = EmailField('Email', validators=[
+        DataRequired(message='Email is required'),
+        Email(message='Email address must be valid'),
+        Exist(User, User.email)
+    ])

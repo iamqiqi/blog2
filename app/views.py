@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, request, session, flash, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db
-from .forms import LoginForm, SignupForm, PostForm, BioForm, EditForm
+from .forms import LoginForm, SignupForm, PostForm, BioForm, EditForm, ResetPwdForm
 from .models import User, Post
 from wtforms.validators import ValidationError
 from datetime import datetime
@@ -21,7 +21,7 @@ def listall():
     posts = Post.query.order_by(Post.timestamp.desc()).all()
     return render_template('home/listall.html', posts=posts, post_form=post_form, login_form=login_form)
 
-@app.route('/users/<username>')
+@app.route('/users/<username>/')
 def userPage(username):
     post_form = PostForm()
     login_form = LoginForm()
@@ -31,7 +31,7 @@ def userPage(username):
     bio_form.bio.data = user.about_me
     return render_template('user/userposts.html', post_form=post_form, login_form=login_form, bio_form=bio_form, user=user, posts=posts)
 
-@app.route('/users/<username>/account')
+@app.route('/users/<username>/account/')
 def account(username):
     user = User.query.filter_by(nickname=username).first()
     post_form = PostForm()
@@ -154,4 +154,26 @@ def signup():
             flash('Welcome! You were successfully signed up')
             session['logged_in_userid'] = user.id
             session['logged_in_username'] = user.nickname
+            return redirect('/')
+
+@app.route('/resetpwd', methods=['GET', 'POST'])
+def resetpwd():
+    login_form = LoginForm()
+    post_form = PostForm()
+    resetpwd_form = ResetPwdForm()
+    if request.method == 'GET':
+        return render_template('session/resetpwd.html', title='reset password', post_form=post_form, login_form=login_form, resetpwd_form=resetpwd_form)
+    else:
+        email = request.form['email'].lower()
+        if resetpwd_form.validate_on_submit() == False:
+            return render_template('session/resetpwd.html', title='reset password', post_form=post_form, login_form=login_form, email=email)
+        else:
+            credentials = None
+            if MAIL_USERNAME or MAIL_PASSWORD:
+                credentials = (MAIL_USERNAME, MAIL_PASSWORD)
+            mail_handler = SMTPHandler((MAIL_SERVER, MAIL_PORT), 'no-reply@' + MAIL_SERVER, ADMINS, 'microblog failure', credentials)
+            mail_handler.setLevel(logging.ERROR)
+            app.logger.addHandler(mail_handler)
+
+            flash('A confirmation is sent to your email')
             return redirect('/')

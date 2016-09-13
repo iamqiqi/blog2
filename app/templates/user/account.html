@@ -1,9 +1,4 @@
 {% extends "layouts/application.html" %}
-
-{% block head %}
-  <link href="/static/css/app.css" rel="stylesheet">
-{% endblock %}
-
 {% block body %}
 {% if user.nickname == session['logged_in_username'] %}
   <div>

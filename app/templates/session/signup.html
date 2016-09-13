@@ -1,9 +1,4 @@
 {% extends "layouts/application.html" %}
-
-{% block head %}
-  <link href="/static/css/app.css" rel="stylesheet">
-{% endblock %}
-
 {% block body %}
   <div class="jumbotron">
     <h1>Blog Pepper</h1>
@@ -38,10 +33,10 @@
         {% endfor %}
       {% endif %}
       <button class="btn btn-lg btn-primary btn-block" type="submit" >Sign up</button>
-      <div>
-        Already have an account? <a href="/login">sign in</a>
-      </div>
       {{ signup_form.csrf_token }}
     </form>
+    <div>
+      Already have an account? <a href="/login">sign in</a>
+    </div>
   </div>
 {% endblock %}
