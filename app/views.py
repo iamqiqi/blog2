@@ -9,6 +9,7 @@ from hashlib import md5
 import random
 import string
 import requests
+import config
 
 @app.before_request
 def check_session():
@@ -202,20 +203,18 @@ def resetpwd():
 
 @app.route('/auth/google/', methods=['GET'])
 def auth_google():
-    client_id = '915670173616-300ki119bk6pgmqfqojga2bo36i20305.apps.googleusercontent.com'
     scope = 'profile email'
     response_type = 'code'
-    redirect_uri = 'https://python-app-2222-iamqiqi.c9users.io/auth/google/callback'
     state = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(60))
 
     session['google_auth_state'] = state
 
     return redirect(
         'https://accounts.google.com/o/oauth2/v2/auth' +
-        '?client_id=' + client_id +
+        '?client_id=' + config.GOOGLE_CLIENT_ID +
         '&scope=' + scope +
         '&response_type=' + response_type +
-        '&redirect_uri=' + redirect_uri +
+        '&redirect_uri=' + config.GOOGLE_REDIRECT_URI +
         '&state=' + state
     )
 
@@ -223,9 +222,6 @@ def auth_google():
 def auth_google_callback():
     state = request.args.get('state')
     code = request.args.get('code')
-    client_id = '915670173616-300ki119bk6pgmqfqojga2bo36i20305.apps.googleusercontent.com'
-    client_secret = '3DQd0XLTJ47-nfQAsdT2r4bi'
-    redirect_uri = 'https://python-app-2222-iamqiqi.c9users.io/auth/google/callback'
     grant_type = 'authorization_code'
     saved_state = session.pop('google_auth_state', None)
 
@@ -236,9 +232,9 @@ def auth_google_callback():
 
     data = {
         'code': code,
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'redirect_uri': redirect_uri,
+        'client_id': config.GOOGLE_CLIENT_ID,
+        'client_secret': config.GOOGLE_CLIENT_SECRET,
+        'redirect_uri': config.GOOGLE_REDIRECT_URI,
         'grant_type': grant_type
     }
     r = requests.post(post_url, data=data)
