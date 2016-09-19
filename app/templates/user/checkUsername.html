@@ -1,0 +1,13 @@
+{% extends "layouts/application.html" %}
+{% block body %}
+  <div class="jumbotron">
+    <h1>Blog Pepper</h1>
+    <h2>Username {{ username }} is registered, please rename your username</h2>
+    <div class="form-signin">
+      <div class="username-error"></div>
+      <input class="username-create-input"></input>
+      <button class="btn btn-lg btn-primary btn-block username-create-btn">Save</button>
+    </div>
+  </div>
+
+{% endblock %}

@@ -2,7 +2,7 @@
 {% block body %}
 {% if user.nickname == session['logged_in_username'] %}
   <div>
-    Username: <span class="updated-username">{{ user.nickname }}</span>
+    Username: <span class="updated-username">{{ user.nickname|upper }}</span>
     <button class="username-edit-btn">Change</button>
     <div class="account-edit-form username-edit-form form-signin hide">
       <div class="error username-error"></div>

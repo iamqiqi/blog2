@@ -14,7 +14,7 @@ class User(db.Model):
     def avatar(self, size):
         return 'http://www.gravatar.com/avatar/%s?d=mm&s=%d' % (md5(self.email.encode('utf-8')).hexdigest(), size)
 
-    def __init__(self, nickname, email, password=None):
+    def __init__(self, nickname, email=None, password=None):
         self.nickname = nickname
         self.email = email
         self.password = password

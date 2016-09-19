@@ -169,6 +169,29 @@ $(document).ready(function() {
         }
     });
 
+    $(document).on('click', '.username-create-btn', function() {
+        console.log('button clicked!!!');
+        $('.username-error').text('');
+        var new_username = $('.username-create-input').val().toLowerCase().trim();
+        if (new_username == '') {
+            ($('.username-error')).prepend('<div>username can not be empty</div>');
+        }
+        else {
+            $.ajax({
+                type: 'POST',
+                url: "/createusername",
+                data: { new_username: new_username },
+                success: function(data) {
+                    window.location.href = data;
+                },
+                error: function(xhr, status, error) {
+                    var errortext = xhr.responseText;
+                    ($('.username-error')).prepend('<div>'+ errortext +'</div>');
+                }
+            });
+        }
+    });
+
     $(document).on('click', '.email-update-btn', function() {
         $('.email-error').text('');
         var new_email = $('.email-edit-input1').val().toLowerCase().trim();

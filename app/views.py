@@ -220,6 +220,8 @@ def auth_google():
 
 @app.route('/auth/google/callback', methods=['GET'])
 def auth_google_callback():
+    login_form = LoginForm()
+    post_form = PostForm()
     state = request.args.get('state')
     code = request.args.get('code')
     grant_type = 'authorization_code'
@@ -248,25 +250,93 @@ def auth_google_callback():
         session['logged_in_username'] = user.nickname
         flash('You are blog pepper registered user, redirect to your blog pepper account')
         return redirect('/')
-    else:
-        username = profile.json()['displayName']
-        user = User(username, email)
-        db.session.add(user)
-        db.session.commit()
-        session['logged_in_userid'] = user.id
-        session['logged_in_username'] = user.nickname
-        flash('Welcome! You were successfully logged in')
-        return redirect('/')
 
-
-@app.route('/auth/google/callback2', methods=['GET'])
-def auth_google_callback2():
-    return 'callback2'
+    username = profile.json()['displayName']
+    check_username = User.query.filter_by(nickname = username).first()
+    if check_username:
+        session['email'] = email
+        return render_template('user/checkUsername.html', post_form=post_form, login_form=login_form, username=username, email=email)
+    user = User(username, email)
+    db.session.add(user)
+    db.session.commit()
+    session['logged_in_userid'] = user.id
+    session['logged_in_username'] = user.nickname
+    flash('Welcome! You were successfully logged in')
+    return redirect('/')
 
 @app.route('/auth/facebook/', methods=['GET'])
 def auth_facebook():
-    pass
+    scope = 'public_profile,email'
+    response_type = 'code'
+    state = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(60))
+
+    session['facebook_auth_state'] = state
+
+    return redirect(
+        'https://www.facebook.com/dialog/oauth?' +
+        'client_id='+ config.FACEBOOK_CLIENT_ID +
+        '&redirect_uri=' + config.FACEBOOK_REDIRECT_URI +
+        '&scope=' + scope +
+        '&response_type=' + response_type +
+        '&state=' + state
+    )
 
 @app.route('/auth/facebook/callback', methods=['GET'])
 def auth_facebook_callback():
-    pass
+    login_form = LoginForm()
+    post_form = PostForm()
+    state = request.args.get('state')
+    code = request.args.get('code')
+    saved_state = session.pop('facebook_auth_state', None)
+
+    if saved_state == None or saved_state != state:
+        return 'FAILED (invalide state)'
+
+    r = requests.get('https://graph.facebook.com/v2.3/oauth/access_token?' +
+                    'client_id='+ config.FACEBOOK_CLIENT_ID +
+                    '&redirect_uri=' + config.FACEBOOK_REDIRECT_URI +
+                    '&client_secret=' + config.FACEBOOK_CLIENT_SECRET +
+                    '&code=' + code
+                    )
+
+    access_token = r.json()['access_token']
+
+    profile = requests.get('https://graph.facebook.com/v2.7/me?access_token=' + access_token + '&fields=email,name')
+    print profile.text
+    username = profile.json()['name']
+    email = profile.json()['email']
+    user = User.query.filter_by(email=email).first()
+    if user:
+        session['logged_in_userid'] = user.id
+        session['logged_in_username'] = user.nickname
+        flash('You are blog pepper registered user, redirect to your blog pepper account')
+        return redirect('/')
+
+    check_username = User.query.filter_by(nickname = username).first()
+    if check_username:
+        session['email'] = email
+        return render_template('user/checkUsername.html', post_form=post_form, login_form=login_form, username=username, email=email)
+    user = User(username, email)
+    db.session.add(user)
+    db.session.commit()
+    session['logged_in_userid'] = user.id
+    session['logged_in_username'] = user.nickname
+    flash('Welcome! You were successfully logged in')
+    return redirect('/')
+
+
+@app.route('/createusername', methods=['POST'])
+def createusername():
+    print '======================================'
+    email = session['email']
+    username = request.form['new_username']
+    check_username = User.query.filter_by(nickname=username).first()
+    if check_username:
+        return "username is taken", 409
+    user = User(username, email)
+    db.session.add(user)
+    db.session.commit()
+    session['logged_in_userid'] = user.id
+    session['logged_in_username'] = user.nickname
+    flash('Welcome! You were successfully logged in')
+    return '/'
