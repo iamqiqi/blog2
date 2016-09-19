@@ -6,15 +6,15 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nickname = db.Column(db.String(64), index=True, unique=True, nullable=False)
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
-    password = db.Column(db.String(255), nullable=False)
+    password = db.Column(db.String(255), nullable=True)
     about_me = db.Column(db.String(140))
-    post = db.relationship('Post', backref = 'author', lazy = 'dynamic')
+    posts = db.relationship('Post', backref = 'author', cascade="all, delete-orphan", lazy = 'dynamic')
     last_seen = db.Column(db.DateTime)
 
     def avatar(self, size):
         return 'http://www.gravatar.com/avatar/%s?d=mm&s=%d' % (md5(self.email.encode('utf-8')).hexdigest(), size)
 
-    def __init__(self, nickname, email, password):
+    def __init__(self, nickname, email, password=None):
         self.nickname = nickname
         self.email = email
         self.password = password

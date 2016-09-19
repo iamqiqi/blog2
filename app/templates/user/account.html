@@ -38,9 +38,13 @@
       <div class="account-input">{{ edit_form.password2(size=80, class="form-control password-edit-input2", placeholder="New Password") }}</div>
       <label for="password3" class="sr-only">Password3</label>
       <div class="account-input">{{ edit_form.password3(size=80, class="form-control password-edit-input3", placeholder="Confirm Password") }}</div>
-      <button class="btn btn-lg btn-primary btn-block password-update-btn" type="submit" >Update</button>
+      <button class="btn btn-lg btn-primary btn-block password-update-btn">Update</button>
       <button class="btn btn-lg btn-primary btn-block cancel-account-edit-btn">Cancel</button>
     </div>
+  </div>
+
+  <div>
+    <button class="delete-account-btn">Delete account</button>
   </div>
 {% else %}
   <img src="/static/img/bossface.jpg" alt="permission denied" class="img-responsive">

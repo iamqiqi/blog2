@@ -18,3 +18,6 @@ MAIL_PASSWORD = None
 
 # administrator list
 ADMINS = ['itsqiqi@hotmail.com']
+
+# google api settings
+GOOGLE_CLIENT_ID = '915670173616-300ki119bk6pgmqfqojga2bo36i20305.apps.googleusercontent.com'

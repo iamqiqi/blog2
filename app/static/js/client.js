@@ -235,4 +235,18 @@ $(document).ready(function() {
             });
         }
     });
+
+    $(document).on('click', '.delete-account-btn', function(){
+        if (confirm('Are you sure ?')) {
+            var email = $('.updated-email').text();
+            $.ajax({
+                type: 'POST',
+                url: "/deleteaccount",
+                data: {email: email},
+                success: function(data){
+                    window.location.href = data;
+                }
+            });
+        }
+    });
 });
