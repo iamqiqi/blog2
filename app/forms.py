@@ -79,9 +79,19 @@ class EditForm(Form):
         EqualTo('password2', message='Passwords must match')
     ])
 
-class ResetPwdForm(Form):
+class ResetPwdEmailForm(Form):
     email = EmailField('Email', validators=[
         DataRequired(message='Email is required'),
         Email(message='Email address must be valid'),
         Exist(User, User.email)
+    ])
+
+class ResetPwdForm(Form):
+    password = PasswordField('New password', validators=[
+        DataRequired(message='Password is required'),
+        Length(min=6, message='Password minimum is 6 characters')
+    ])
+    password2 = PasswordField('Password Confirm', validators=[
+        DataRequired(message='Confirm password is required'),
+        EqualTo('password', message='Passwords must match')
     ])

@@ -170,7 +170,6 @@ $(document).ready(function() {
     });
 
     $(document).on('click', '.username-create-btn', function() {
-        console.log('button clicked!!!');
         $('.username-error').text('');
         var new_username = $('.username-create-input').val().toLowerCase().trim();
         if (new_username == '') {

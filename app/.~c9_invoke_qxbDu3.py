@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, request, session, flash, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, db
-from .forms import LoginForm, SignupForm, PostForm, BioForm, EditForm, ResetPwdEmailForm, ResetPwdForm
+from .forms import LoginForm, SignupForm, PostForm, BioForm, EditForm, ResetPwdForm
 from .models import User, Post, PasswordChange
 from wtforms.validators import ValidationError
 from datetime import datetime, timedelta
@@ -185,65 +185,48 @@ def signup():
 def resetpwd():
     login_form = LoginForm()
     post_form = PostForm()
-    resetpwd_email_form = ResetPwdEmailForm()
+    resetpwd_form = ResetPwdForm()
     if request.method == 'GET':
-        return render_template('session/resetpwdemail.html', title='reset password', post_form=post_form, login_form=login_form, resetpwd_email_form=resetpwd_email_form)
+        return render_template('session/resetpwd.html', title='reset password', post_form=post_form, login_form=login_form, resetpwd_form=resetpwd_form)
 
     email = request.form['email'].lower()
-    if resetpwd_email_form.validate_on_submit() == False:
-        return render_template('session/resetpwdemail.html', title='reset password', post_form=post_form, login_form=login_form, email=email, resetpwd_email_form=resetpwd_email_form)
+    if resetpwd_form.validate_on_submit() == False:
+        return render_template('session/resetpwd.html', title='reset password', post_form=post_form, login_form=login_form, email=email, resetpwd_form=resetpwd_form)
 
     #create reset data record
     user = User.query.filter_by(email=email).first()
     expiration_time = datetime.now() + timedelta(minutes = 30)
+    print expiration_time
     token = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(60))
     passwordchange = PasswordChange(expiration_time, user.id, token)
     db.session.add(passwordchange)
     db.session.commit()
+    print passwordchange
 
     #setting up the email
     mykey=os.environ.get('SENDGRID_API_KEY')
-    print '================'
-    print mykey
-    print '================'
     sg = sendgrid.SendGridAPIClient(apikey=mykey)
-    from_email = Email("Blogpepper<iamqiqijiang@gmail.com>")
+    from_email = Email("iamqiqijiang@gmail.com")
     subject = "Blogpepper - Reset your password"
     to_email = Email(email)
-    content_value = render_template('email/resetpwd.html', token=token)
+    content_value = """<html><body>
+        please click the following link to reset your password
+        <a href="https://python-app-2222-iamqiqi.c9users.io/password/""" + token + """">Reset password</a>
+    </body></html>"""
     content = Content("text/html", content_value)
     mail = Mail(from_email, subject, to_email, content)
     response = sg.client.mail.send.post(request_body=mail.get())
-    flash('A confirm email has been sent to your email')
+    print response
     return redirect('/')
 
-@app.route('/password/<token>', methods=['GET', 'POST'])
+@app.route('/password/<token>')
 def passwordconfirm(token):
-    pwdrequest = PasswordChange.query.filter_by(token=token).first()
-    if pwdrequest:
-        now = datetime.now()
-        if now < pwdrequest.expiration:
-            login_form = LoginForm()
-            post_form = PostForm()
-            pwdreset_form = ResetPwdForm()
-            if request.method == 'GET':
-                return render_template('session/pswdreset.html', username=pwdrequest.user.nickname, token=token, post_form=post_form, login_form=login_form, pwdreset_form=pwdreset_form)
-
-            if pwdreset_form.validate_on_submit() == False:
-                return render_template('session/pswdreset.html', username=pwdrequest.user.nickname, token=token, post_form=post_form, login_form=login_form, pwdreset_form=pwdreset_form)
-
-            new_password = request.form['password']
-            new_hashed_password = generate_password_hash(new_password, method="pbkdf2:sha256")
-            pwdrequest.user.password = new_hashed_password
-            db.session.delete(pwdrequest)
-            db.session.commit()
-            session['logged_in_userid'] = pwdrequest.user.id
-            session['logged_in_username'] = pwdrequest.user.nickname
-            flash('password changed!')
-            return redirect('/')
-        else:
-            return 'token expired'
-    return 'invalid token'
+    print token
+    check = PasswordChange.query.filter_by(token=token).first()
+    print check
+    if check:
+        return check
+    return 'wrong'
 
 
 @app.route('/auth/google/', methods=['GET'])
