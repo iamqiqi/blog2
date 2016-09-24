@@ -45,9 +45,9 @@ def userPage(username):
     bio_form.bio.data = user.about_me
     return render_template('user/userposts.html', post_form=post_form, login_form=login_form, bio_form=bio_form, user=user, posts=posts)
 
-@app.route('/users/<username>/account/')
-def account(username):
-    user = User.query.filter_by(nickname=username).first()
+@app.route('/users/account/')
+def account():
+    user = User.query.filter_by(id=session['logged_in_userid']).first()
     post_form = PostForm()
     login_form = LoginForm()
     bio_form = BioForm()
@@ -55,9 +55,9 @@ def account(username):
     bio_form.bio.data = user.about_me
     return render_template('user/account.html', edit_form=edit_form, post_form=post_form, login_form=login_form, bio_form=bio_form, user=user)
 
-@app.route('/users/<username>/account/<option>', methods=['POST'])
-def accountedit(username, option):
-    user = User.query.filter_by(nickname=username).first()
+@app.route('/users/account/<option>', methods=['POST'])
+def accountedit(option):
+    user = User.query.filter_by(id=session['logged_in_userid']).first()
     if option == 'username':
         username = request.form['new_username']
         check = User.query.filter_by(nickname=username).first()
@@ -111,7 +111,7 @@ def bio():
 @app.route('/deletepost', methods=['POST'])
 def deletepost():
     post_id = request.form['id']
-    post = Post.query.filter_by(id=int(post_id)).delete()
+    Post.query.filter_by(id=post_id, user_id=session['logged_in_userid']).delete()
     db.session.commit()
     return 'done'
 
@@ -195,26 +195,29 @@ def resetpwd():
 
     #create reset data record
     user = User.query.filter_by(email=email).first()
-    expiration_time = datetime.now() + timedelta(minutes = 30)
-    token = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(60))
-    passwordchange = PasswordChange(expiration_time, user.id, token)
-    db.session.add(passwordchange)
-    db.session.commit()
+    if user:
+        expiration_time = datetime.now() + timedelta(minutes = 30)
+        token = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(60))
+        passwordchange = PasswordChange(expiration_time, user.id, token)
+        db.session.add(passwordchange)
+        db.session.commit()
 
-    #setting up the email
-    mykey=os.environ.get('SENDGRID_API_KEY')
-    print '================'
-    print mykey
-    print '================'
-    sg = sendgrid.SendGridAPIClient(apikey=mykey)
-    from_email = Email("Blogpepper<iamqiqijiang@gmail.com>")
-    subject = "Blogpepper - Reset your password"
-    to_email = Email(email)
-    content_value = render_template('email/resetpwd.html', token=token)
-    content = Content("text/html", content_value)
-    mail = Mail(from_email, subject, to_email, content)
-    response = sg.client.mail.send.post(request_body=mail.get())
-    flash('A confirm email has been sent to your email')
+        #setting up the email
+        mykey=os.environ.get('SENDGRID_API_KEY')
+        print '================'
+        print mykey
+        print '================'
+        sg = sendgrid.SendGridAPIClient(apikey=mykey)
+        from_email = Email("Blogpepper<iamqiqijiang@gmail.com>")
+        subject = "Blogpepper - Reset your password"
+        to_email = Email(email)
+        content_value = render_template('email/resetpwd.html', token=token)
+        content = Content("text/html", content_value)
+        mail = Mail(from_email, subject, to_email, content)
+        response = sg.client.mail.send.post(request_body=mail.get())
+        flash('A confirm email has been sent to your email')
+    else:
+        flash('this email does not exist')
     return redirect('/')
 
 @app.route('/password/<token>', methods=['GET', 'POST'])

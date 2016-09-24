@@ -50,7 +50,7 @@
             </li>
           {% else %}
             <li>
-              <a class="header-username" href="/users/{{session['logged_in_username']}}">{{ session['logged_in_username']|upper }}</a>
+              <a class="header-username" href="/users/{{session['logged_in_username']}}">{{ session['logged_in_username'] }}</a>
             </li>
             <li>
               <button class="show-post-button btn button-default">New Post</button>

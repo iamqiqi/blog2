@@ -152,12 +152,13 @@ $(document).ready(function() {
         else if (new_username != old_username) {
             $.ajax({
                 type: 'POST',
-                url: "/users/" + old_username + "/account/username",
+                url: "/users/account/username",
                 data: { new_username: new_username },
                 success: function() {
-                    var userlink = '<a href="/users/'+ new_username +'">' + new_username + '</a>';
+                    var username = new_username.toUpperCase();
+                    var userlink = '<a class="header-username" href="/users/'+ new_username +'">' + username + '</a>';
                     $('.header-username').replaceWith(userlink);
-                    $('.updated-username').text(new_username);
+                    $('.updated-username').text(username);
                     $('.username-edit-input').val('');
                     $('.username-edit-form').addClass('hide');
                 },
@@ -206,7 +207,7 @@ $(document).ready(function() {
             var username = $('.updated-username').text();
             $.ajax({
                 type: 'POST',
-                url: "/users/" + username + "/account/email",
+                url: "/users/account/email",
                 data: {new_email: new_email},
                 success: function(){
                     $('.updated-email').text(new_email);
@@ -239,7 +240,7 @@ $(document).ready(function() {
             var username = $('.updated-username').text();
             $.ajax({
                 type: 'POST',
-                url: "/users/" + username + "/account/password",
+                url: "/users/account/password",
                 data: {
                     current_password: old_password,
                     new_password: new_password

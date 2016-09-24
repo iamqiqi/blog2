@@ -4,7 +4,7 @@
 <h1>{{ user.nickname }}</h1>
 {% if user.nickname == session['logged_in_username'] %}
 <div>
-  <a href="/users/{{ user.nickname }}/account">
+  <a href="/users/account">
     <button>account manage</button>
   </a>
 <div>

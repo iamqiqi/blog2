@@ -8,8 +8,8 @@ class User(db.Model):
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=True)
     about_me = db.Column(db.String(140))
-    posts = db.relationship('Post', backref = 'author', cascade="all, delete-orphan", lazy = 'dynamic')
-    password_changes = db.relationship('PasswordChange', backref = 'user', cascade="all, delete-orphan", lazy = 'dynamic')
+    posts = db.relationship('Post', backref='author', cascade="all, delete-orphan", lazy ='dynamic')
+    password_changes = db.relationship('PasswordChange', backref='user', cascade="all, delete-orphan", lazy='dynamic')
     last_seen = db.Column(db.DateTime)
 
     def avatar(self, size):
