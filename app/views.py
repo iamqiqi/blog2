@@ -1,6 +1,6 @@
-from flask import render_template, flash, redirect, request, session, flash, url_for
+from flask import render_template, flash, redirect, request, session, flash, url_for, g
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import app, db
+from app import app, db, lm
 from .forms import LoginForm, SignupForm, PostForm, BioForm, EditForm, ResetPwdEmailForm, ResetPwdForm
 from .models import User, Post, PasswordChange
 from wtforms.validators import ValidationError
@@ -12,9 +12,14 @@ import config
 import sendgrid
 import os
 from sendgrid.helpers.mail import *
+from flask.ext.login import login_user, logout_user, current_user, login_required
 
 @app.before_request
 def check_session():
+    g.user = current_user
+    print "====pre-request==="
+    print g.user.nickname
+    print "=================="
     if 'logged_in_userid' in session:
         username = session['logged_in_username']
         check = User.query.filter_by(nickname=username).first()
@@ -23,6 +28,7 @@ def check_session():
 
 @app.route('/')
 @app.route('/index')
+@login_required
 def index():
     login_form = LoginForm()
     post_form = PostForm()
@@ -43,7 +49,13 @@ def userPage(username):
     user = User.query.filter_by(nickname=username).first()
     posts = user.posts.order_by(Post.timestamp.desc()).all()
     bio_form.bio.data = user.about_me
-    return render_template('user/userposts.html', post_form=post_form, login_form=login_form, bio_form=bio_form, user=user, posts=posts)
+    following = None
+    if session.has_key('logged_in_userid'):
+        logged_in_user = User.query.filter_by(id=session['logged_in_userid']).first()
+        following = logged_in_user.is_following(user)
+    return render_template('user/userposts.html', post_form=post_form, login_form=login_form, bio_form=bio_form, user=user, posts=posts, following=following)
+
+
 
 @app.route('/users/account/')
 def account():
@@ -54,6 +66,22 @@ def account():
     edit_form = EditForm()
     bio_form.bio.data = user.about_me
     return render_template('user/account.html', edit_form=edit_form, post_form=post_form, login_form=login_form, bio_form=bio_form, user=user)
+
+@app.route('/users/<username>/follow', methods=['POST'])
+def follow(username):
+    user = User.query.filter_by(id=session['logged_in_userid']).first()
+    followed_user = User.query.filter_by(nickname=username).first()
+    user.follow(followed_user)
+    db.session.commit()
+    return redirect('/users/'+ username)
+
+@app.route('/users/<username>/unfollow', methods=['POST'])
+def unfollow(username):
+    user = User.query.filter_by(id=session['logged_in_userid']).first()
+    followed_user = User.query.filter_by(nickname=username).first()
+    user.unfollow(followed_user)
+    db.session.commit()
+    return redirect('/users/'+ username)
 
 @app.route('/users/account/<option>', methods=['POST'])
 def accountedit(option):
@@ -155,6 +183,9 @@ def login():
     session['logged_in_userid'] = user.id
     session['logged_in_username'] = user.nickname
     flash('Welcome back! You were successfully logged in')
+    print "====pre-request==="
+    print g.user.nickname
+    print "=================="
     return redirect('/')
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -204,9 +235,6 @@ def resetpwd():
 
         #setting up the email
         mykey=os.environ.get('SENDGRID_API_KEY')
-        print '================'
-        print mykey
-        print '================'
         sg = sendgrid.SendGridAPIClient(apikey=mykey)
         from_email = Email("Blogpepper<iamqiqijiang@gmail.com>")
         subject = "Blogpepper - Reset your password"
@@ -350,7 +378,6 @@ def auth_facebook_callback():
     access_token = r.json()['access_token']
 
     profile = requests.get('https://graph.facebook.com/v2.7/me?access_token=' + access_token + '&fields=email,name')
-    print profile.text
     username = profile.json()['name']
     email = profile.json()['email']
     user = User.query.filter_by(email=email).first()
