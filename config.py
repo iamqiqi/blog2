@@ -9,6 +9,7 @@ WTF_CSRF_ENABLED = True
 SECRET_KEY = 'uih;oGiehrfRpq9c'
 SQLALCHEMY_DATABASE_URI = 'mysql://iamqiqi:@localhost/blog'
 SQLALCHEMY_MIGRATE_REPO = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile(inspect.currentframe()))[0], "db_repository")))
+SQLALCHEMY_ECHO = True
 
 # google api settings
 GOOGLE_CLIENT_ID = '915670173616-300ki119bk6pgmqfqojga2bo36i20305.apps.googleusercontent.com'

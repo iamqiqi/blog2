@@ -55,8 +55,6 @@ def userPage(username):
         following = logged_in_user.is_following(user)
     return render_template('user/userposts.html', post_form=post_form, login_form=login_form, bio_form=bio_form, user=user, posts=posts, following=following)
 
-
-
 @app.route('/users/account/')
 def account():
     user = User.query.filter_by(id=session['logged_in_userid']).first()
